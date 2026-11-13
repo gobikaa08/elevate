@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" width="280" height="60" fill="none">
+  <defs>
+    <linearGradient id="goldGradWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7EAC8"/>
+      <stop offset="45%" stop-color="#D6B779"/>
+      <stop offset="100%" stop-color="#A88235"/>
+    </linearGradient>
+  </defs>
+  <!-- Monogram Crest -->
+  <g transform="translate(10, 8)">
+    <!-- Outer Diamond Frame -->
+    <path d="M22 2 L42 22 L22 42 L2 22 Z" stroke="url(#goldGradWhite)" stroke-width="1.8" fill="rgba(214, 183, 121, 0.05)"/>
+    <!-- Inner Diamond Frame -->
+    <path d="M22 6 L38 22 L22 38 L6 22 Z" stroke="#D6B779" stroke-width="0.8" stroke-dasharray="2 2" stroke-opacity="0.8" fill="none"/>
+    <!-- Corner Accents -->
+    <circle cx="22" cy="2" r="2" fill="url(#goldGradWhite)"/>
+    <circle cx="42" cy="22" r="2" fill="url(#goldGradWhite)"/>
+    <circle cx="22" cy="42" r="2" fill="url(#goldGradWhite)"/>
+    <circle cx="2" cy="22" r="2" fill="url(#goldGradWhite)"/>
+    <!-- Center Monogram 'E' in Bold Serif -->
+    <text x="22" y="24" font-family="'Playfair Display', Georgia, 'Times New Roman', serif" font-size="24" font-weight="800" fill="url(#goldGradWhite)" text-anchor="middle" dominant-baseline="central">E</text>
+  </g>
+  <!-- Text: ELEVATE -->
+  <text x="66" y="32" font-family="'Playfair Display', Georgia, serif" font-size="24" font-weight="700" letter-spacing="4" fill="#FFFFFF">ELEVATE</text>
+  <!-- Text: EVENTS -->
+  <text x="68" y="46" font-family="'Inter', sans-serif" font-size="10" font-weight="600" letter-spacing="5.5" fill="#D6B779">E V E N T S</text>
+</svg>
