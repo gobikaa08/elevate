@@ -456,4 +456,22 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     return text.replace(/[&<>"']/g, function (m) { return map[m]; });
   }
+
+  /* ==========================================================
+     10. MOBILE SMOOTH SCROLL & SCROLLTRIGGER RECALIBRATION
+     ========================================================== */
+  function refreshMobileScroll() {
+    if (typeof ScrollTrigger !== "undefined") {
+      ScrollTrigger.refresh();
+    }
+  }
+
+  window.addEventListener("load", refreshMobileScroll);
+  window.addEventListener("resize", refreshMobileScroll);
+
+  const allImages = document.querySelectorAll("#smooth-content img, .elevate-hero img, .about-section img");
+  allImages.forEach(function (img) {
+    if (img.complete) return;
+    img.addEventListener("load", refreshMobileScroll);
+  });
 });
