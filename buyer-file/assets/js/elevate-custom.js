@@ -99,23 +99,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const mobileMenuContainer = document.querySelector(".mobile-menu");
   const sourceNav = document.getElementById("mobile-menu");
 
-  // MeanMenu initialization fallback
-  if (typeof jQuery !== "undefined" && jQuery.fn.meanmenu) {
-    if (jQuery("#mobile-menu").length && !jQuery(".mean-container").length) {
-      jQuery("#mobile-menu").meanmenu({
-        meanMenuContainer: ".mobile-menu",
-        meanScreenWidth: "1199",
-        meanExpand: ['<i class="fa-solid fa-chevron-down"></i>']
+  // Deduplicate and sanitize mobile navigation container
+  function sanitizeMobileMenu() {
+    if (!mobileMenuContainer) return;
+
+    const meanBar = mobileMenuContainer.querySelector(".mean-bar");
+    if (meanBar) {
+      // MeanMenu is active: remove any duplicate fallback or stray top-level ULs
+      const duplicateUls = mobileMenuContainer.querySelectorAll(":scope > ul, .elevate-fallback-menu");
+      duplicateUls.forEach(function (ul) {
+        ul.remove();
       });
     }
   }
 
-  // Pure JS mobile menu fallback if MeanMenu didn't populate .mobile-menu
-  if (mobileMenuContainer && sourceNav && (!mobileMenuContainer.children.length || !mobileMenuContainer.querySelector("ul"))) {
+  // Run sanitization immediately and after initial render phases
+  sanitizeMobileMenu();
+  setTimeout(sanitizeMobileMenu, 100);
+  setTimeout(sanitizeMobileMenu, 400);
+
+  // Fallback ONLY if MeanMenu / jQuery is completely unavailable and no menu was populated
+  const hasMeanMenu = typeof jQuery !== "undefined" && (jQuery.fn.meanmenu || jQuery(".mean-container").length > 0);
+  if (!hasMeanMenu && mobileMenuContainer && sourceNav && !mobileMenuContainer.querySelector("ul")) {
     const cloneNav = sourceNav.cloneNode(true);
     cloneNav.removeAttribute("id");
     const topUl = cloneNav.querySelector("ul");
     if (topUl) {
+      topUl.classList.add("elevate-fallback-menu");
       mobileMenuContainer.appendChild(topUl);
 
       // Add accordion click handling to mobile dropdowns
@@ -164,12 +174,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Close offcanvas when clicking any navigation link inside it
+  // Ensure sanitization runs on window resize and when sidebar toggle is clicked
+  window.addEventListener("resize", sanitizeMobileMenu);
+  document.querySelectorAll(".sidebar__toggle").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setTimeout(sanitizeMobileMenu, 30);
+    });
+  });
+
+  // Close offcanvas when clicking any navigation link inside it (except accordion expand toggles)
   if (mobileMenuContainer) {
     mobileMenuContainer.addEventListener("click", function (e) {
       const link = e.target.closest("a");
-      if (link && link.getAttribute("href") && link.getAttribute("href") !== "javascript:void(0)" && link.getAttribute("href") !== "#") {
-        closeOffcanvas();
+      if (
+        link &&
+        !link.classList.contains("mean-expand") &&
+        !link.classList.contains("mobile-expand-btn")
+      ) {
+        const href = link.getAttribute("href");
+        if (href && href !== "javascript:void(0)" && href !== "#" && !href.startsWith("#")) {
+          closeOffcanvas();
+        }
       }
     });
   }
@@ -253,11 +278,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const $expand = jQuery(this).siblings(".mean-expand");
         if ($expand.length) {
           let icon = $expand.find("i");
-          if (icon.hasClass("fa-chevron-down")) {
+          if (icon.hasClass("fa-plus")) {
+            icon.removeClass("fa-plus").addClass("fa-minus");
+          } else if (icon.hasClass("fa-minus")) {
+            icon.removeClass("fa-minus").addClass("fa-plus");
+          } else if (icon.hasClass("fa-chevron-down")) {
             icon.removeClass("fa-chevron-down").addClass("fa-chevron-up");
-          } else {
+          } else if (icon.hasClass("fa-chevron-up")) {
             icon.removeClass("fa-chevron-up").addClass("fa-chevron-down");
           }
+          $expand.toggleClass("mean-clicked");
         }
       }
     });
@@ -298,46 +328,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ==========================================================
-     6. UPCOMING EVENTS -> CONSULTATION PREFILL & SMOOTH SCROLL
-     ========================================================== */
-  const reserveBtns = document.querySelectorAll(".event-reserve-btn");
-  const eventTypeSelect = document.getElementById("eventType");
-
-  reserveBtns.forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      const eventName = this.getAttribute("data-event-title") || "";
-      const eventCategory = this.getAttribute("data-event-type") || "";
-
-      if (eventTypeSelect && eventCategory) {
-        for (let i = 0; i < eventTypeSelect.options.length; i++) {
-          if (eventTypeSelect.options[i].value.toLowerCase().includes(eventCategory.toLowerCase())) {
-            eventTypeSelect.selectedIndex = i;
-            break;
-          }
-        }
-      }
-
-      const messageField = document.getElementById("eventMessage");
-      if (messageField && eventName) {
-        messageField.value = "Inquiring about VIP access/reservation for: " + eventName + ". Please share availability and private suite details.";
-      }
-
-      const contactSection = document.getElementById("contact") || document.querySelector(".contact-section");
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: "smooth" });
-      }
-    });
-  });
-
-  /* ==========================================================
-     7. CONSULTATION / ENQUIRY FORM VALIDATION & CONFIRMATION
+     6. CONSULTATION / ENQUIRY FORM VALIDATION & CONFIRMATION
+     (Managed with Cloud Firestore via firebase-enquiry.js)
      ========================================================== */
   const enquiryForm = document.getElementById("elevateEnquiryForm");
   const successBox = document.getElementById("elevateSuccessBox");
 
-  if (enquiryForm) {
+  // If Firebase module is loaded, it manages Firestore submission with live persistence
+  if (enquiryForm && !window.__elevateFirebaseReady) {
     enquiryForm.addEventListener("submit", function (e) {
+      if (window.__elevateFirebaseReady) return; // delegate to Firebase handler
       e.preventDefault();
 
       const name = document.getElementById("fullName");
@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ==========================================================
-     8. NEWSLETTER FORMS
+     7. NEWSLETTER FORMS
      ========================================================== */
   const newsletterForms = document.querySelectorAll(".newsletter-form form, .footer-newsletter form");
   newsletterForms.forEach(function (form) {
@@ -412,40 +412,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  /* ==========================================================
-     9. SMOOTH ANCHOR SCROLLING (EVENTS, CONTACT, ABOUT)
-     ========================================================== */
-  document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-    if (anchor.closest('.has-dropdown') && anchor.parentElement.classList.contains('has-dropdown')) {
-      return;
-    }
-    const href = anchor.getAttribute('href');
-    if (!href || href === '#' || href === '#0' || href.startsWith('#!')) return;
-
-    anchor.addEventListener('click', function (e) {
-      const hash = this.getAttribute('href');
-      if (hash && hash.length > 1) {
-        try {
-          const target = document.querySelector(hash);
-          if (target) {
-            e.preventDefault();
-            const headerOffset = 90;
-            const elementPosition = target.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: 'smooth'
-            });
-
-            if (offcanvasInfo) offcanvasInfo.classList.remove('info-open');
-            if (offcanvasOverlay) offcanvasOverlay.classList.remove('overlay-open');
-          }
-        } catch (err) {}
-      }
-    });
-  });
-
   function escapeHtml(text) {
     const map = {
       '&': '&amp;',
@@ -455,6 +421,55 @@ document.addEventListener("DOMContentLoaded", function () {
       "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+  }
+
+  /* ==========================================================
+     8. ANIMATED STATS / METRIC COUNTERS (ALL PAGES)
+     ========================================================== */
+  const counterElements = document.querySelectorAll(".metric-number, .counter, .count-number, .about-floating-experience h3");
+
+  function animateSingleCounter(el) {
+    if (el.dataset.animated === "true") return;
+    const originalText = el.textContent.trim();
+    const isPercent = originalText.includes("%");
+    const isPlus = originalText.includes("+");
+    const target = parseFloat(originalText.replace(/[^0-9.]/g, ""));
+    if (isNaN(target)) return;
+
+    let current = 0;
+    const duration = 1600;
+    const steps = 45;
+    const increment = target / steps;
+    const stepTime = duration / steps;
+
+    const timer = setInterval(function () {
+      current += increment;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      let formatted = isPercent ? current.toFixed(1) + "%" : Math.floor(current) + (isPlus ? "+" : "");
+      el.textContent = formatted;
+    }, stepTime);
+
+    el.dataset.animated = "true";
+  }
+
+  if ("IntersectionObserver" in window) {
+    const counterObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateSingleCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    counterElements.forEach(function (el) {
+      counterObserver.observe(el);
+    });
+  } else {
+    counterElements.forEach(animateSingleCounter);
   }
 
   /* ==========================================================

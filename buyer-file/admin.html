@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELEVATE — Executive Admin Portal & Inquiry Manager</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.svg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/elevate-theme.css?v=2.2">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-card: #181818;
+            --gold-primary: #D6B779;
+            --gold-hover: #ECD599;
+            --gold-glow: rgba(214, 183, 121, 0.25);
+            --border-subtle: rgba(214, 183, 121, 0.18);
+            --text-light: #F8F5EF;
+            --text-muted: #A7A7A7;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-light);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Glass Luxury Card */
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Navigation Bar */
+        .admin-navbar {
+            background: #0f0f0f;
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .admin-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .admin-brand span {
+            color: var(--gold-primary);
+        }
+        .admin-badge {
+            font-size: 11px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            background: rgba(214, 183, 121, 0.15);
+            color: var(--gold-primary);
+            border: 1px solid var(--border-subtle);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 22px;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold-primary);
+        }
+        .stat-card .stat-icon {
+            font-size: 24px;
+            color: var(--gold-primary);
+            margin-bottom: 12px;
+        }
+        .stat-card .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin: 0;
+        }
+        .stat-card .stat-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Table Styling */
+        .table-luxury {
+            width: 100%;
+            margin-bottom: 0;
+            color: var(--text-light);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table-luxury thead th {
+            background: #111;
+            color: var(--gold-primary);
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            text-transform: uppercase;
+        }
+        .table-luxury tbody td {
+            background: transparent;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        .table-luxury tbody tr:hover td {
+            background: rgba(214, 183, 121, 0.04);
+        }
+
+        /* Status Badges */
+        .badge-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        .status-in_review {
+            background: rgba(13, 202, 240, 0.15);
+            color: #0dcaf0;
+            border: 1px solid rgba(13, 202, 240, 0.3);
+        }
+        .status-contacted {
+            background: rgba(13, 110, 253, 0.15);
+            color: #6ea8fe;
+            border: 1px solid rgba(13, 110, 253, 0.3);
+        }
+        .status-confirmed {
+            background: rgba(25, 135, 84, 0.15);
+            color: #75b798;
+            border: 1px solid rgba(25, 135, 84, 0.3);
+        }
+        .status-archived {
+            background: rgba(108, 117, 125, 0.15);
+            color: #adb5bd;
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        /* Controls */
+        .form-control-admin {
+            background: #111;
+            border: 1px solid var(--border-subtle);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-control-admin:focus {
+            background: #151515;
+            border-color: var(--gold-primary);
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 2px var(--gold-glow);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #D6B779, #c5a25d);
+            color: #0c0c0c;
+            font-weight: 600;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 13px;
+        }
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #ECD599, #D6B779);
+            color: #000;
+            box-shadow: 0 4px 15px var(--gold-glow);
+        }
+
+        .btn-outline-gold {
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .btn-outline-gold:hover {
+            background: var(--gold-primary);
+            color: #0c0c0c;
+        }
+
+        /* Modal Customization */
+        .modal-content {
+            background: #141414;
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            color: var(--text-light);
+        }
+        .modal-header {
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 20px 24px;
+        }
+        .modal-footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 16px 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ======================================================= -->
+    <!-- 1. LOGIN SCREEN (Visible when unauthenticated)           -->
+    <!-- ======================================================= -->
+    <div id="authContainer" class="d-flex align-items-center justify-content-center min-vh-100 p-3">
+        <div class="admin-card p-4 p-md-5" style="max-width: 460px; width: 100%;">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-crown" style="font-size: 36px; color: var(--gold-primary); margin-bottom: 16px;"></i>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 6px; color: var(--text-light);">
+                    ELEVATE
+                </h3>
+                <span class="admin-badge">Executive Agency Portal</span>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 14px;">
+                    Secure verification required. Access is restricted strictly to authorized agency administrators.
+                </p>
+            </div>
+
+            <!-- Login Error Box -->
+            <div id="loginErrorBox" class="alert alert-danger d-none" style="background: rgba(255, 77, 79, 0.12); border: 1px solid #ff4d4f; color: #ff9999; font-size: 13px; border-radius: 8px;"></div>
+
+            <form id="adminLoginForm">
+                <div class="mb-3">
+                    <label for="adminEmail" class="form-label" style="font-size: 13px; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.5px;">Admin Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: #111; border-color: var(--border-subtle); color: var(--gold-primary);"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" class="form-control form-control-admin" id="adminEmail" placeholder="admin@domain.com" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="adminPassword" class="form-label" style="font-size: 13px; color: var(--gold-primary); text-transform: uppercase; letter-spacing: 0.5px;">Master Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: #111; border-color: var(--border-subtle); color: var(--gold-primary);"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control form-control-admin" id="adminPassword" placeholder="••••••••••••" required autocomplete="current-password">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" style="border-color: var(--border-subtle); color: var(--text-muted);">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="adminSignInBtn" class="btn btn-gold w-100 py-3">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i> Authenticate & Enter Portal
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top" style="border-color: rgba(255,255,255,0.06) !important;">
+                <a href="index.html" style="color: var(--text-muted); font-size: 13px; text-decoration: none;">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Return to Public Showcase
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 2. MAIN ADMIN DASHBOARD (Visible when authenticated)      -->
+    <!-- ======================================================= -->
+    <div id="dashboardContainer" class="d-none">
+        
+        <!-- Navbar -->
+        <nav class="admin-navbar">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="admin.html" class="admin-brand">
+                        ELEVATE <span>PORTAL</span>
+                    </a>
+                    <span class="admin-badge d-none d-md-inline-block">Master Agency Control</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Automations & Integrations Settings -->
+                    <button id="openSettingsBtn" class="btn btn-outline-gold btn-sm d-flex align-items-center gap-2" title="Manage Google Sheets Automation">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Automations</span>
+                    </button>
+
+                    <!-- Audio notification toggle -->
+                    <button id="toggleNotificationBtn" class="btn btn-outline-gold btn-sm d-none d-md-flex align-items-center gap-2" title="Enable browser chime on incoming bookings">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notifStatusText">Alerts Ready</span>
+                    </button>
+
+                    <!-- User Identity Badge -->
+                    <div class="d-none d-lg-block text-end">
+                        <div id="adminUserEmail" style="font-size: 13px; font-weight: 600; color: #fff;">admin@elevateevents.com</div>
+                        <div style="font-size: 11px; color: var(--gold-primary);">Authorized Agency Lead</div>
+                    </div>
+
+                    <!-- External Link -->
+                    <a href="index.html" target="_blank" class="btn btn-outline-gold btn-sm" title="Open live website in new tab">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+
+                    <!-- Sign Out -->
+                    <button id="adminSignOutBtn" class="btn btn-outline-danger btn-sm" style="border-radius: 8px;">
+                        <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Workspace -->
+        <main class="container-fluid py-4 px-md-4">
+            
+            <!-- Executive Banner -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 28px; margin: 0; color: var(--text-light);">
+                        Consultation & Booking Dossier
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin: 4px 0 0 0;">
+                        Real-time synchronization with Cloud Firestore <code style="color: var(--gold-primary);">event_enquiries</code>.
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="exportCsvBtn" class="btn btn-gold btn-sm d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> Export to CSV / Excel
+                    </button>
+                    <button id="refreshDataBtn" class="btn btn-outline-gold btn-sm" title="Force sync">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric Cards Strip -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-crown"></i></div>
+                        <h3 class="stat-value" id="statTotal">0</h3>
+                        <div class="stat-label">Total Inquiries</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card" style="border-left: 3px solid #ffc107;">
+                        <div class="stat-icon" style="color: #ffc107;"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <h3 class="stat-value" id="statPending" style="color: #ffc107;">0</h3>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card" style="border-left: 3px solid #0dcaf0;">
+                        <div class="stat-icon" style="color: #0dcaf0;"><i class="fa-solid fa-comments"></i></div>
+                        <h3 class="stat-value" id="statInReview" style="color: #0dcaf0;">0</h3>
+                        <div class="stat-label">In Dialogue</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card" style="border-left: 3px solid #198754;">
+                        <div class="stat-icon" style="color: #198754;"><i class="fa-solid fa-circle-check"></i></div>
+                        <h3 class="stat-value" id="statConfirmed" style="color: #198754;">0</h3>
+                        <div class="stat-label">Confirmed Celebrations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Search Toolbar -->
+            <div class="admin-card p-3 mb-4">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: #111; border-color: var(--border-subtle); color: var(--gold-primary);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="searchInput" class="form-control form-control-admin" placeholder="Search by client name, email, phone, or location...">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <select id="statusFilter" class="form-select form-control-admin">
+                            <option value="ALL">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_review">In Review</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <select id="categoryFilter" class="form-select form-control-admin">
+                            <option value="ALL">All Event Categories</option>
+                            <option value="Wedding Planning">Royal / Destination Wedding</option>
+                            <option value="Corporate Events">Corporate Gala / Global Summit</option>
+                            <option value="Birthday Celebrations">Milestone Birthday Soirée</option>
+                            <option value="Concerts & Shows">Concert & Live Show Production</option>
+                            <option value="Private Parties">Private Party / Superyacht</option>
+                            <option value="Destination Events">Destination Multi-Day Event</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inquiries Data Table Container -->
+            <div class="admin-card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table-luxury">
+                        <thead>
+                            <tr>
+                                <th>Client Details</th>
+                                <th>Event Category</th>
+                                <th>Estimated Date</th>
+                                <th>Investment Tier</th>
+                                <th>Workflow Status</th>
+                                <th>Submitted</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inquiriesTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="spinner-border text-warning" role="status" style="color: var(--gold-primary) !important;">
+                                        <span class="visually-hidden">Loading inquiries...</span>
+                                    </div>
+                                    <p class="mt-3 mb-0" style="color: var(--text-muted);">Synchronizing with Firestore event_enquiries...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Offline Google Sheets Sync Instructions & Notice -->
+            <div class="mt-4 p-3 rounded" style="background: rgba(214, 183, 121, 0.05); border: 1px dashed var(--border-subtle);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-table-cells" style="color: var(--gold-primary); font-size: 20px;"></i>
+                        <span style="font-size: 13px; color: var(--text-muted);">
+                            <strong>Spreadsheet & Google Sheets Integration:</strong> Click <strong style="color: var(--gold-primary);">"Export to CSV / Excel"</strong> at any time to instantly download all client inquiries into your spreadsheet software.
+                        </span>
+                    </div>
+                    <span class="badge" style="background: rgba(25, 135, 84, 0.2); color: #75b798; border: 1px solid rgba(25, 135, 84, 0.4);">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Admin UID Locked: dZUg...1XA2
+                    </span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 3. INQUIRY DOSSIER MODAL                                -->
+    <!-- ======================================================= -->
+    <div class="modal fade" id="inquiryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title" style="font-family: 'Playfair Display', serif; color: var(--gold-primary);" id="modalClientName">
+                            Client Dossier
+                        </h5>
+                        <div id="modalEventCategory" style="font-size: 13px; color: var(--text-muted);"></div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Direct Email</label>
+                            <div id="modalClientEmail" style="font-size: 15px; font-weight: 500;"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Telephone</label>
+                            <div id="modalClientPhone" style="font-size: 15px; font-weight: 500;"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Estimated Date</label>
+                            <div id="modalEventDate" style="font-size: 15px; font-weight: 500;"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Investment Tier</label>
+                            <div id="modalBudget" style="font-size: 15px; font-weight: 500;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Aspirations, Location & Special Notes</label>
+                        <div id="modalMessage" class="p-3 rounded" style="background: #111; border: 1px solid var(--border-subtle); font-size: 14px; line-height: 1.7; color: #ddd; white-space: pre-wrap;"></div>
+                    </div>
+
+                    <!-- 1-Click Quick Response Templates -->
+                    <div class="mb-4 p-3 rounded" style="background: rgba(214, 183, 121, 0.06); border: 1px dashed var(--border-subtle);">
+                        <label style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px; display: block; margin-bottom: 8px;">
+                            <i class="fa-solid fa-bolt me-1"></i> 1-Click Automated Response Drafts
+                        </label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" id="quickReplyLookbook" class="btn btn-outline-gold btn-sm">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Send Signature Lookbook
+                            </button>
+                            <button type="button" id="quickReplyCorporate" class="btn btn-outline-gold btn-sm">
+                                <i class="fa-solid fa-briefcase me-1"></i> Corporate Capability Deck
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modalAdminNotes" style="font-size: 11px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 1px;">Internal Agency Notes (Admin Only)</label>
+                        <textarea id="modalAdminNotes" class="form-control form-control-admin" rows="3" placeholder="Add confidential notes on VIP client communications, quotes, or producer assignments..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="d-flex gap-2">
+                        <a id="modalMailtoBtn" href="#" class="btn btn-outline-gold btn-sm">
+                            <i class="fa-solid fa-envelope me-1"></i> Email Client
+                        </a>
+                        <a id="modalTelBtn" href="#" class="btn btn-outline-gold btn-sm">
+                            <i class="fa-solid fa-phone me-1"></i> Call Phone
+                        </a>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="modalSaveNotesBtn" class="btn btn-gold btn-sm">Save Internal Notes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 4. AUTOMATIONS & INTEGRATIONS SETTINGS MODAL            -->
+    <!-- ======================================================= -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title" style="font-family: 'Playfair Display', serif; color: var(--gold-primary);">
+                            <i class="fa-solid fa-bolt me-2"></i>Automations & Integrations
+                        </h5>
+                        <div style="font-size: 12px; color: var(--text-muted);">Eliminate manual scheduling & spreadsheet data entry</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label for="settingSheetsUrl" style="font-size: 12px; text-transform: uppercase; color: var(--gold-primary); letter-spacing: 0.5px; font-weight: 600;">
+                            Real-Time Google Sheets Webhook URL
+                        </label>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
+                            Every customer booking will automatically append a row to your Google Sheet in real-time and trigger confirmation emails.
+                        </p>
+                        <input type="url" id="settingSheetsUrl" class="form-control form-control-admin" placeholder="https://script.google.com/macros/s/.../exec">
+                        <small style="font-size: 11px; color: var(--gold-primary);">See <code>GOOGLE_SHEETS_SETUP.md</code> in project folder for 1-minute setup code.</small>
+                    </div>
+
+                    <div id="settingsSaveAlert" class="alert alert-success d-none py-2" style="font-size: 12px; background: rgba(25, 135, 84, 0.2); border-color: rgba(25, 135, 84, 0.4); color: #75b798;">
+                        <i class="fa-solid fa-check me-1"></i> Automation settings saved successfully!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="saveSettingsBtn" class="btn btn-gold btn-sm">Save Automations</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Admin Dashboard Logic (Firebase Module) -->
+    <script type="module" src="assets/js/admin-dashboard.js?v=2.2"></script>
+</body>
+</html>
